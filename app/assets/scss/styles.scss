@@ -1,0 +1,141 @@
+/* Generic */
+body {
+    padding: 100px 20px;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Variables */
+$green_main: #2ecc71;
+$grey_main: #ecf0f1;
+$dark_main: #2c3e50;
+$red_main: #e74c3c;
+
+// omg, rewriting bootstrap classes...
+.btn {
+    transition: .3s;
+}
+.btn-success {
+    background-color: $green_main;
+    border-color: $green_main;
+    &:hover {
+        background-color: darken($green_main, 5%);
+    }
+}
+/* UTIL CLASSES */
+.flexParent {
+    display: -webkt-flex;
+    display: flex;
+}
+.flexColumn {
+    flex-flow: column;
+}
+.flexRowWrap {
+    flex-flow: row wrap;
+}
+.flexCenterY {
+    align-items: center;
+}
+.flexCenterX {
+    justify-content: center;
+}
+.clickThrough {
+    pointer-events: none;
+}
+
+/* Field classes */
+.field_custom_wrapper {
+    position: relative;
+    .field_custom {
+        border: none;
+        border-bottom: 1px solid $dark_main;
+        box-shadow: none;
+        border-radius: 0;
+        background-color: transparent;
+        &::before {
+            content: '';
+            width: 0%;
+            height: 1px;
+            background-color: $red_main;
+            position: absolute;
+        }
+        ~ .label_custom {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            color: transparentize($dark_main, .4);
+            transition: all .4s cubic-bezier(.0,.0,.7,2.46);
+            pointer-events: none;
+        }
+        &:focus {
+            box-shadow: none;
+            border-color: $red_main;
+            ~ .label_custom {
+                top: 0;
+                font-size: 75%;
+                color: $red_main;
+            }
+            &::before {
+                content: '';
+                width: 100%;
+                height: 1px;
+                background-color: $red_main;
+            }
+        }
+    }
+}
+
+
+
+/* TABLE */
+#tables_wrapper {
+    height: 200px;
+    overflow-x: auto;
+    width: 100%;
+    margin: 50px 0;
+    .table_container {
+        width: 200px;
+        height: 150px;
+        background-color: $grey_main;
+        border-radius: 20px;
+        border: 3px solid $green_main;
+        padding: 15px;
+        flex-shrink: 0;
+        margin: 0 10px;
+        position: relative;
+        transition: .2s;
+        &:hover {
+            transform: scale(1.1);
+        }
+        .players_container {
+            .player {
+                margin: 8px;
+                &.true {
+                    color: $green_main;
+                }
+                &.false {
+                    color: transparentize($dark_main, .8);
+                }
+            }
+        }
+    }
+}
+
+/* DELETE */
+.tableIcon {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    cursor: pointer;
+    transition: .3s;
+    &:hover {
+        color: $red_main;
+    }
+}
+
+
+/* MENU */
+.menu {
+
+}
