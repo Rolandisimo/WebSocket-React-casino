@@ -1,6 +1,6 @@
-import React, { PropTypes, Component } from 'react'
-import Player from './Player.jsx'
-import shallowCompare from 'react-addons-shallow-compare';
+import React, { PropTypes, Component } from 'react';
+import Player from './Player.jsx';
+import PureRenderMixin from 'react-addons-pure-render-mixin';
 
 
 
@@ -8,10 +8,9 @@ import shallowCompare from 'react-addons-shallow-compare';
 
 class Table extends Component {
     constructor(props) {
-        super(props)
-    }
-    shouldComponentUpdate(nextProps, nextState) {
-        return shallowCompare(this, nextProps, nextState);
+        super(props);
+
+        this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
     }
     render () {
         var playerNodes = [];

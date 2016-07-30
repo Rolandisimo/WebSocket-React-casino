@@ -1,5 +1,5 @@
-import React, { PropTypes, Component} from 'react'
-import shallowCompare from 'react-addons-shallow-compare';
+import React, { PropTypes, Component } from 'react'
+import PureRenderMixin from 'react-addons-pure-render-mixin';
 
 
 
@@ -19,15 +19,14 @@ const hideLabel = (e) => {
 class AddTable extends Component {
     constructor(props) {
         super(props)
-    }
-    shouldComponentUpdate(nextProps, nextState) {
-        return shallowCompare(this, nextProps, nextState);
+
+        this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
     }
     render() {
         return (
-            <form name="addTableForm" onSubmit={(e) => e.preventDefault()} className="form-inline">
+            <form ref="addTableForm" name="addTableForm" onSubmit={e => e.preventDefault()} className="form-inline">
                 <div className="form-group field_custom_wrapper">
-                    <input type="text" onChange={hideLabel} name="tableName" className="form-control field_custom"/>
+                    <input ref="tableName" type="text" onChange={hideLabel} name="tableName" className="form-control field_custom"/>
                     <label htmlFor="tableName" className="label_custom">Table Name</label>
                 </div>
                 <button type="button" onClick={this.props.addTable} className="btn btn-success" style={{marginLeft: 10}}>

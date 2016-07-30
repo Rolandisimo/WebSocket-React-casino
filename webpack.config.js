@@ -26,20 +26,13 @@ var config = {
                 test: /\.[s]?css$/,
                 loader: 'style!css!sass'
             }
-        ],
-        noParse: [ /socket.io-client/ ]
-    },
-    external:{
-        'socket.io-client':'io'
+        ]
     },
     resolveLoader: {
         root: [path.join(projectRoot, 'node_modules')]
     },
     resolve: {
-        root: [path.join(projectRoot, 'node_modules')],
-        alias: {
-            'socket.io-client': path.join( __dirname, 'node_modules', 'socket.io-client', 'socket.io.js' )
-        }
+        root: [path.join(projectRoot, 'node_modules')]
     }
 };
 module.exports = config;

@@ -1,5 +1,5 @@
 import React, { PropTypes, Component } from 'react'
-import shallowCompare from 'react-addons-shallow-compare';
+import PureRenderMixin from 'react-addons-pure-render-mixin';
 
 
 
@@ -7,10 +7,9 @@ import shallowCompare from 'react-addons-shallow-compare';
 
 class Player extends Component {
     constructor(props) {
-        super(props)
-    }
-    shouldComponentUpdate(nextProps, nextState) {
-        return shallowCompare(this, nextProps, nextState);
+        super(props);
+
+        this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
     }
     render() {
         return (

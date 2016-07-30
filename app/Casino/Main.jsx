@@ -1,29 +1,36 @@
-import React, {PropTypes} from 'react';
-import { hashHistory } from 'react-router';
-import Table from './Table.jsx';
-import AddTable from './AddTable.jsx';
-import UpdateTable from './UpdateTable.jsx';
-import Auth from '../Auth/Auth.jsx';
-import Popup from './Popup.jsx';
+import React, { PropTypes, Component } from 'react'
+import { hashHistory } from 'react-router'
+import Table from './Table.jsx'
+import AddTable from './AddTable.jsx'
+import UpdateTable from './UpdateTable.jsx'
+import Auth from '../Auth/Auth.jsx'
+import Popup from './Popup.jsx'
+import Title from './Title.jsx'
+import { connect } from 'react-redux'
+import {
+    addTable,
+    removeTable,
+    updateTable,
+    setTablesInitial,
+    unsubscribeTables
+} from '../shared/actions/TableActions'
 
 
 
 
 
-class Main extends React.Component {
+
+class Main extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            tables: [],
             success: false,
-            maxTables: 100,
             errorOnAction: false,
-            userLevel: props.location.query.userType,
             userEditing: false,
-            tableEditing: {},
-            dismissTime: 2000
+            tableEditing: {}
         };
+
 
         const getTablesAction = {
             "$type": "subscribe_tables"
@@ -31,7 +38,7 @@ class Main extends React.Component {
 
         window.socket.send(JSON.stringify(getTablesAction));
         //Receive response
-        window.socket.onmessage = (event) => {
+        window.socket.onmessage = event => {
             let data = JSON.parse(event.data);
             let updatedTables;
 
@@ -39,69 +46,27 @@ class Main extends React.Component {
 
             switch (data.$type) {
                 case 'table_list':
-                    if (data.tables.length > this.state.maxTables) {
-                        let tables = data.tables.slice(0, this.state.maxTables);
-
-                        this.setState({tables});
+                    const {tables} = data;
+                    console.log("max: ", props.maxTables);
+                    if (tables.length > props.maxTables) {
+                        props.dispatch(setTablesInitial(tables.slice(0, props.maxTables)));
                     } else {
-                        this.setState({
-                            tables: data.tables
-                        });
+                        props.dispatch(setTablesInitial(tables));
                     }
 
                     break;
                 case 'table_added':
-
-                    //Update state
-                    let newTablesState;
-                    if (data.after_id === -1) {
-                        newTablesState = [data.table, ...this.state.tables];
+                    if (props.tables.length < props.maxTables) {
+                        props.dispatch(addTable(data));
                     } else {
-                        newTablesState = [...this.state.tables, data.table];
+                        alert("The maximum number of tables reached");
                     }
-
-                    this.setState({
-                        tables: newTablesState,
-                        errorOnAction: false,
-                        success: true
-                    }, () => {
-                        setTimeout(() => {
-                            this.setState({
-                                success: false
-                            })
-                        }, this.state.dismissTime);
-                    });
-
                     break;
                 case 'table_removed':
-
-                    updatedTables = this.state.tables
-                        .filter(t => {
-                            if (t.id !== data.id) {
-                                return t;
-                            }
-                        });
-
-                    //Update state
-                    if (updatedTables.length !== this.state.tables.length) {
-                        this.setState({
-                            tables: updatedTables,
-                            errorOnAction: false
-                        });
-                    }
-
+                    props.dispatch(removeTable(data));
                     break;
                 case 'table_updated':
-
-                    this.state.tables
-                        .map(t => {
-                            if (t.id === data.table.id) {
-                                console.log("table up", t);
-                                t.name = data.table.name;
-                                return t;
-                            }
-                        });
-
+                    props.dispatch(updateTable(data));
                     this.setState({
                         userEditing: false,
                         errorOnAction: false,
@@ -112,7 +77,7 @@ class Main extends React.Component {
                             this.setState({
                                 success: false
                             })
-                        }, this.state.dismissTime);
+                        }, this.props.dismissTime);
                     });
 
                     break;
@@ -129,20 +94,19 @@ class Main extends React.Component {
 
                     break;
                 case 'not_authorized':
-                    console.log("Not auth");
                     hashHistory.push('/');
 
                     break;
             }
         };
-
-
     }
+
+
     deleteTable(index) {
         let removeTable = {
           "$type": "remove_table",
           "id": index
-        }
+        };
         //Remove table
         window.socket.send(JSON.stringify(removeTable));
     }
@@ -159,16 +123,16 @@ class Main extends React.Component {
             this.setState({
                 userEditing: editing
             }, () => {
-                let form = document.forms['updateTableForm'];
-                form['tableName'].value = table.name;
+                const updateTableForm = this.refs.updateTable.refs.updateTableForm;
+                let updateTableName = this.refs.updateTable.refs.tableName;
+                updateTableName.value = table.name;
             })
         })
     }
     updateTable() {
-        let form = document.forms['updateTableForm'];
-
-        if (form['tableName'].value) {
-            let name = form['tableName'].value.trim();
+        const updateTableName = this.refs.updateTable.refs.tableName.value.trim();
+        if (updateTableName) {
+            let name = updateTableName;
 
             let newTableObject = {
               "$type": "update_table",
@@ -216,10 +180,10 @@ class Main extends React.Component {
         fadePopup();
     }
     addTable(e) {
-        let form = document.forms['addTableForm'];
-
-        if (form['tableName'].value) {
-            let name = form['tableName'].value.trim();
+        const addTableForm = this.refs.addTable.refs.addTableForm;
+        const addTableValue = this.refs.addTable.refs.tableName.value.trim();
+        if (addTableValue) {
+            let name = addTableValue;
 
             let newTableObject = {
               "$type": "add_table",
@@ -233,21 +197,19 @@ class Main extends React.Component {
             //Add table
             window.socket.send(JSON.stringify(newTableObject));
 
-
             //Reset form fields
-            let formLabels = document.querySelectorAll('.label_custom')
-            formLabels = [].slice.call(formLabels);
-
+            let formLabels = Array.from(document.querySelectorAll('.label_custom'));
             formLabels.map(x => x.style.opacity = 1)
-            form.reset();
+            addTableForm.reset();
         } else {
             this.setState({
                 errorOnAction: true
             })
         }
     }
-
-
+    componentWillUnmount() {
+        this.props.dispatch(unsubscribeTables());
+    }
     render() {
         return (
             <div className="flexParent flexColumn">
@@ -258,13 +220,14 @@ class Main extends React.Component {
                     :
                     ''
                 }
-                <h1 className="text-center">Active Tables: {this.state.tables.length}</h1>
+
+                <Title tableCount={this.props.tables.length} />
                 <hr/>
                 <div className="menu flexParent flexCenterX flexCenterY">
                     {
-                        this.state.userLevel === 'admin'
+                        this.props.user.userType === 'admin'
                         ?
-                        <AddTable addTable={this.addTable.bind(this)} success={this.state.success}/>
+                        <AddTable ref="addTable" addTable={this.addTable.bind(this)} success={this.state.success}/>
                         :
                         ''
                     }
@@ -277,6 +240,7 @@ class Main extends React.Component {
                     <div className="row" style={{marginTop: 50}}>
                         <div className="col-xs-6 col-xs-offset-3 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
                             <UpdateTable
+                                ref="updateTable"
                                 updateTable={this.updateTable.bind(this)}
                                 initUpdate={this.initUpdate.bind(this)}
                                 cancelUpdate={this.cancelUpdate.bind(this)}
@@ -288,17 +252,18 @@ class Main extends React.Component {
                 }
                 <div id="tables_wrapper" className="container flexParent flexCenterY" style={{flex: 1}}>
                     {
-                        this.state.tables.length
+                        this.props.tables.length
                         ?
-                        this.state.tables.map(table =>
+                        this.props.tables.map(table =>
                             <Table
                                 key={"table_" + table.id + "_" + table.participants}
-                                id={"table_" + table.id} table={table}
+                                id={"table_" + table.id}
+                                table={table}
                                 deleteTable={this.deleteTable.bind(this, table.id)}
                                 updateTable={this.updateTable.bind(this, table)}
                                 initUpdate={this.initUpdate.bind(this, table)}
                                 userEditing={this.state.userEditing}
-                                userLevel={this.state.userLevel}
+                                userLevel={this.props.user.userType}
                                 />
                         )
                         :
@@ -312,4 +277,23 @@ class Main extends React.Component {
     };
 }
 
-export default Main;
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+      tables: state.tableReducer,
+      user: state.userReducer,
+      dismissTime: 2000,
+      maxTables: 100,
+      success: false,
+      errorOnAction: false,
+      userEditing: false,
+      tableEditing: {}
+
+  }
+}
+
+
+
+
+
+export default connect(mapStateToProps)(Main);

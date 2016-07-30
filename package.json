@@ -4,22 +4,25 @@
   "description": "",
   "main": "app/index.js",
   "scripts": {
-    "start": "webpack-dev-server --content-base=www --hot --inline --watch --config=webpack.config.js"
+    "start": "webpack-dev-server --content-base=www --hot --inline --watch --config=webpack.config.js",
+    "lint": "eslint ./app/"
   },
   "author": "Roland Yegorov",
   "license": "",
   "repository": {
     "type": "git",
-    "url": "https://js-assignment.evolutiongaming.com/git/Rolandisimo/waqimela.git"
+    "url": ""
   },
   "dependencies": {
     "babel-runtime": "^6.9.2",
+    "immutable": "^3.8.1",
     "react": "^15.2.0",
-    "react-addons-pure-render-mixin": "^15.2.0",
-    "react-addons-shallow-compare": "^15.2.1",
+    "react-addons-pure-render-mixin": "^15.2.1",
     "react-dom": "^15.2.0",
+    "react-pure-render": "^1.0.2",
+    "react-redux": "^4.4.5",
     "react-router": "^2.5.2",
-    "socket.io": "^1.4.8"
+    "redux": "^3.5.2"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
@@ -29,9 +32,17 @@
     "babel-polyfill": "^6.9.1",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.9.0",
     "css-loader": "^0.23.1",
+    "eslint": "^3.1.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "eslint-plugin-import": "^1.11.0",
+    "eslint-plugin-jsx-a11y": "^2.0.1",
+    "eslint-plugin-react": "^5.2.2",
     "node-sass": "^3.8.0",
+    "redux-logger": "^2.6.1",
+    "redux-thunk": "^2.1.0",
     "sass-loader": "^4.0.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.12.2",
